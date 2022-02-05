@@ -6,7 +6,7 @@ from flask import make_response, url_for
 import json
 from time import gmtime, strftime
 
-app = Flask (__name__)
+app = Flask (__name__, template_folder='template')
 
 #@app.route('/')
 # def hello():
