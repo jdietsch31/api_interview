@@ -1,6 +1,7 @@
 import sqlite3
-from flask import Flask, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, session
 from flask import abort
+from flask_cors import CORS, cross_origin
 from flask import make_response, url_for
 import json
 from time import gmtime, strftime
@@ -8,8 +9,8 @@ from time import gmtime, strftime
 app = Flask (__name__)
 
 #@app.route('/')
-#def hello():
-   # return 'Hello, World!';
+# def hello():
+# return 'Hello, World!';
 
 @app.route("/api/v1/info")
 def home_index():
@@ -45,6 +46,10 @@ def list_users():
                 api_list.append(a_dict)
         conn.close()
         return jsonify ({'user list': api_list}), 200
+
+@app.route('/adduser')
+def adduser():
+        return render_template('adduser.html')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug = True)
