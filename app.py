@@ -1,3 +1,5 @@
+import random
+from site import addusersitepackages
 import sqlite3
 from flask import Flask, render_template, request, jsonify, redirect, session
 from flask import abort
@@ -47,9 +49,45 @@ def list_users():
         conn.close()
         return jsonify ({'user list': api_list}), 200
 
+@app.route('/api/v1/users', methods=['POST'])
+def create_user():
+    if not request.json or not 'username' in request.json or not 'email' in request.json or not 'password' in request.json:
+        abort(400)
+    user = {
+        'username': request.json['username'],
+        'email': request.json['email'],
+        'name': request.json.get('name',""),
+        'password': request.json['password']
+    }
+    return jsonify({'status': add_user(user)}), 201
+
+
+
+@app.errorhandler(400)
+def invalid_request(error):
+        return make_response(jsonify({'error': 'Bad Request'}), 400)
+
+def add_user(new_user):
+    conn = sqlite3.connect('windb.db')
+    print ("Opened database successfully");
+    api_list=[]
+    cursor=conn.cursor()
+    cursor.execute("SELECT * from users where username=? or email=?",(new_user['username'],new_user['email']))
+    data = cursor.fetchall()
+    if len(data) != 0:
+        abort(409)
+    else:
+       cursor.execute("insert into users (username, email, password, full_name) values(?,?,?,?)",(new_user['username'],new_user['email'], new_user['password'], new_user['name']))
+       conn.commit()
+       return "Success"
+    conn.close()
+    return jsonify(a_dict)
+
 @app.route('/adduser')
 def adduser():
         return render_template('adduser.html')
+
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug = True)
